@@ -4,14 +4,13 @@ trait TokenFeature {
   def processToken(s: String): Boolean
 }
 
-class ClassTokenFeature(mappings: Map[String, Set[String]]) extends TokenFeature {
-  val counters = scala.collection.mutable.Map[String, Int]()
+class ClassTokenFeature[A]( mappings: Map[A, Set[String]]) extends TokenFeature {
+  val counters = scala.collection.mutable.Map[A, Int]()
 
-  def processToken(s: String): Boolean =
-    updateCounters(s)
+  def processToken(s: String): Boolean = updateCounters(s)
 
   def updateCounters(s: String): Boolean = {
-    def checkMappings(e: List[(String, Set[String])]): Option[String] = {
+    def checkMappings(e: List[(A, Set[String])]): Option[A] = {
       e match {
         case Nil => None
         case (stype, tokens) :: tail =>
@@ -24,14 +23,15 @@ class ClassTokenFeature(mappings: Map[String, Set[String]]) extends TokenFeature
 
     opt match {
       case None => false
-      case Some(stype) =>
+      case Some(stype) => {
         counters.update(stype,counters.getOrElse(stype,0))
         true
+      }
     }
   }
 
   def output =
-    if(counters.isEmpty) "unknown"
-    else if(counters.size==1) counters.keys.head
+    if(counters.size==0) "unknown"
+    else if(counters.size==1) counters.keys.head.toString
     else "mixed"
 }
