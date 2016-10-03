@@ -56,7 +56,7 @@ class CotaTestTest extends JUnitSuite  {
     })
   }
 
-  @Test def testSentenceParser() = {
+  @Test def testSentenceAnalyser() = {
     val testData =List(
       (Output(20,Genders.Male.toString,Sentiments.Positive.toString),"Alex started *his day happy, on '01/01/2000' he ate ice cream and on - 01/20/2000 he won the lottery"),
       (Output(1,Genders.Male.toString,Sentiments.Negative.toString),"Alex ended his day very disappointed, he ate ice cream and on (01/20/2000), he lost a lot of money"),
@@ -65,7 +65,7 @@ class CotaTestTest extends JUnitSuite  {
       (Output(0,"unknown","mixed"),"Alex was angry and jubilant at the same time, he shouted, while her sign expression was up 00/12/0000")
     )
 
-    testData.map(d=>(d._1,TextAnaliser.analyse(d._2))).foreach(o=>assert(o._1===o._2))
+    testData.map(d=>(d._1,TextAnalyser.analyse(d._2))).foreach(o=>assert(o._1===o._2))
   }
 
   @Test def apiTest() = {
@@ -73,11 +73,19 @@ class CotaTestTest extends JUnitSuite  {
       .mkString.split("\r\n\r\n")
 
     val testData = List(
-      (Output(8,"male","mixed").toJson.compactPrint,Input(paragraphs(0)).toJson.compactPrint),
-      (Output(6857,"female","positive").toJson.compactPrint,Input(paragraphs(1)).toJson.compactPrint))
+      (Output(8,"male","mixed"),0),
+      (Output(6857,"female","positive"),1),
+      (Output(1,"female","unknown"),2),
+      (Output(0,"male","negative"),3))
 
     testData.foreach(testPair=>
-      assert(testPair._1===CotaTestApi.analyseText(testPair._2).parseJson.convertTo[Output].toJson.compactPrint)
+      assert(testPair._1.toJson.compactPrint===
+        CotaTestApi.analyseText( Input(paragraphs(testPair._2) ).toJson.compactPrint)
+          .parseJson.convertTo[Output].toJson.compactPrint) // output json then read it back in to an output object, then print it back out to make sure the strings match
     )
+
+    // if json is not parseable return default value of unknowns
+    assert(Output(0,"unknown","unknown").toJson.compactPrint
+      ===CotaTestApi.analyseText("sdghsgfhsgh").parseJson.convertTo[Output].toJson.compactPrint)
   }
 }
