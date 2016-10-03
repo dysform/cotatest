@@ -10,7 +10,7 @@ object CotaTestApi {
   def analyseText(jsonParagraph: String): String = {
     try {
       val input = jsonParagraph.parseJson.convertTo[Input]
-      TextAnaliser.analyse(input.text).toJson.compactPrint
+      TextAnalyser.analyse(input.text).toJson.compactPrint
     } catch {
       case e: Throwable => Output(0,"unknown","unknown").toJson.compactPrint
     }

@@ -2,7 +2,7 @@ package com.dima.cota
 
 import CotaTestApi.Output
 
-object TextAnaliser {
+object TextAnalyser {
 
   def analyse(rawText: String): Output = {
     val gender = new ClassTokenFeature[ClassMappings.Genders.Value](ClassMappings.genderMappings) {
